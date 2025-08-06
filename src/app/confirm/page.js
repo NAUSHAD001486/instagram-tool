@@ -1,7 +1,21 @@
+// src/app/confirm/page.js
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react'; // Suspense को इम्पोर्ट करें
 
-export default function ConfirmPage() {
+// === लोडिंग कंपोनेंट ===
+// जब तक اصلی कंटेंट लोड नहीं होता, यह दिखेगा
+function Loading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-xl font-semibold">Loading User...</div>
+    </div>
+  );
+}
+
+// === आपका اصلی कंटेंट कंपोनेंट ===
+// हमने आपके सारे लॉजिक को इस नए कंपोनेंट में डाल दिया है
+function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const username = searchParams.get('username') || 'naushad__alam__12';
@@ -10,7 +24,7 @@ export default function ConfirmPage() {
   const user = {
     name: 'Naushad alam',
     username: `@${username}`,
-    avatar: '/profile-pic.jpg', // आपकी सैंपल इमेज
+    avatar: '/profile-pic.jpg',
     stats: {
       posts: 166,
       followers: 977,
@@ -61,5 +75,15 @@ export default function ConfirmPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+
+// === मुख्य पेज कंपोनेंट जो अब Suspense का उपयोग करेगा ===
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ConfirmContent />
+    </Suspense>
   );
 }
