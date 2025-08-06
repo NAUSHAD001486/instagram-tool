@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { ArrowLeftIcon, HeartIcon, ChatBubbleOvalLeftEllipsisIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import { SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
@@ -12,7 +12,7 @@ export default function DownloadPage({ params }) {
     id: params.id,
     videoUrl: "/sample-video.mp4",
     user: {
-      username: '@naushad__alam__12',
+      username: '@nausad__alam__12',
       avatar: '/profile-pic.jpg',
     },
     stats: {
@@ -68,4 +68,13 @@ export default function DownloadPage({ params }) {
       </div>
     </div>
   );
+}
+
+// ये नया कोड नीचे जोड़ें
+export async function generateStaticParams() {
+  return [
+    { id: '1' },
+    { id: '2' },
+    { id: '3' }
+  ];
 }
