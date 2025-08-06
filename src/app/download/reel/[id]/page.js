@@ -8,20 +8,6 @@ export default function DownloadPage({ params }) {
   const router = useRouter();
   const [isMuted, setIsMuted] = useState(true);
 
-  const reelData = {
-    id: params.id,
-    videoUrl: "/sample-video.mp4",
-    user: {
-      username: '@nausad__alam__12',
-      avatar: '/profile-pic.jpg',
-    },
-    stats: {
-      views: 52,
-      likes: 4,
-      comments: 2,
-    }
-  };
-
   return (
     <div className="flex flex-col h-screen bg-black">
       <div className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between">
@@ -29,14 +15,14 @@ export default function DownloadPage({ params }) {
           <ArrowLeftIcon className="w-6 h-6" />
         </button>
         <span className="text-white font-semibold text-lg drop-shadow-md">
-          @{reelData.user.username} reels
+          @nausad__alam__12 reels
         </span>
         <div></div>
       </div>
       
       <div className="relative flex-grow flex items-center justify-center">
         <video 
-          src={reelData.videoUrl}
+          src="/sample-video.mp4"
           className="w-full h-full object-contain"
           autoPlay
           loop
@@ -55,9 +41,9 @@ export default function DownloadPage({ params }) {
         </button>
 
         <div className="absolute bottom-6 left-4 text-white drop-shadow-lg text-sm flex items-center space-x-4">
-            <span>👁️ {reelData.stats.views}</span>
-            <span>❤️ {reelData.stats.likes}</span>
-            <span>💬 {reelData.stats.comments}</span>
+            <span>👁️ 52</span>
+            <span>❤️ 4</span>
+            <span>💬 2</span>
         </div>
       </div>
 
@@ -68,13 +54,4 @@ export default function DownloadPage({ params }) {
       </div>
     </div>
   );
-}
-
-// ये नया कोड नीचे जोड़ें
-export async function generateStaticParams() {
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' }
-  ];
 }
