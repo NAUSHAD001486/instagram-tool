@@ -85,3 +85,7 @@ export default function ConfirmPage() {
     </Suspense>
   );
 }
+// यह एक छोटा सा बदलाव है
+'use client';
+import { useRouter, useSearchParams } from 'next/navigation';
+// ... बाकी का कोड जैसा है वैसा ही रहने दें ...
