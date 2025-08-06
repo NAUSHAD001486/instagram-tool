@@ -1,21 +1,19 @@
-// src/app/user/[username]/page.js
 'use client';
 import { 
   RectangleStackIcon, 
   PlayCircleIcon,
   PlusCircleIcon,
   PhotoIcon,
-  ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 
 const ActionButton = ({ icon: Icon, text, onClick }) => (
   <div 
-    className="bg-gray-800/60 rounded-xl p-4 flex flex-col items-start justify-between h-28 cursor-pointer hover:bg-gray-700/50 transition-colors"
     onClick={onClick}
+    className="bg-gray-800/70 rounded-2xl p-4 flex flex-col items-start justify-between h-32 cursor-pointer hover:bg-gray-700/60 transition-colors"
   >
-    <Icon className="w-8 h-8 text-gray-300" />
-    <span className="font-semibold text-left">{text}</span>
+    <Icon className="w-9 h-9 text-gray-300" />
+    <span className="font-semibold text-left text-lg">{text}</span>
   </div>
 );
 
@@ -27,25 +25,16 @@ export default function UserDashboard({ params }) {
     name: 'Naushad alam',
     username: `@${username}`,
     avatar: '/profile-pic.jpg',
-    stats: { 
-      posts: 166, 
-      followers: 977, 
-      following: 97 
-    },
+    stats: { posts: 166, followers: 977, following: 97 },
   };
 
   return (
     <div className="min-h-screen p-4">
-      <div className="w-full max-w-md mx-auto">
+      <main className="w-full max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <button 
-            onClick={() => router.push('/')}
-            className="flex items-center text-gray-400 hover:text-white"
-          >
-            <ArrowLeftIcon className="w-5 h-5 mr-1" />
-            <span>Home</span>
-          </button>
-          
+           <h1 className="text-2xl font-bold" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>
+             In<span className="underline decoration-purple-500">Seen</span>
+          </h1>
           <div className="flex items-center space-x-2 bg-yellow-400/20 text-yellow-300 px-3 py-1 rounded-full">
             <span className="font-bold text-sm">PRO</span>
             <span className="text-yellow-400">👑</span>
@@ -56,55 +45,39 @@ export default function UserDashboard({ params }) {
           <img 
             src={user.avatar} 
             alt="Profile" 
-            className="w-20 h-20 rounded-full border-4 border-pink-500 object-cover"
+            className="w-24 h-24 rounded-full border-4 border-pink-500 object-cover"
           />
           <div className="flex justify-around flex-grow text-center">
             {Object.entries(user.stats).map(([key, value]) => (
               <div key={key}>
-                <p className="font-bold text-lg">{value}</p>
-                <p className="text-gray-400 text-xs capitalize">{key}</p>
+                <p className="font-bold text-xl">{value}</p>
+                <p className="text-gray-400 text-sm capitalize">{key}</p>
               </div>
             ))}
           </div>
         </div>
         
         <h2 className="text-xl font-bold">{user.name}</h2>
-        <p className="text-gray-400 text-sm">{user.username}</p>
+        <p className="text-gray-400 text-md">{user.username}</p>
 
         <div className="grid grid-cols-2 gap-4 my-8">
-          <ActionButton 
-            icon={PlayCircleIcon} 
-            text="Show Stories" 
-            onClick={() => alert('Feature coming soon!')}
-          />
-          <ActionButton 
-            icon={RectangleStackIcon} 
-            text="Show Post" 
-            onClick={() => router.push(`/user/${username}/posts`)}
-          />
-          <ActionButton 
-            icon={PlusCircleIcon} 
-            text="See Highlights" 
-            onClick={() => alert('Feature coming soon!')}
-          />
-          <ActionButton 
-            icon={PhotoIcon} 
-            text="Show Profile Photo" 
-            onClick={() => alert('Feature coming soon!')}
-          />
+          <ActionButton icon={PlayCircleIcon} text="Show Stories" />
+          <ActionButton icon={RectangleStackIcon} text="Show Post" onClick={() => router.push(`/user/${username}/posts`)} />
+          <ActionButton icon={PlusCircleIcon} text="See Highlights" />
+          <ActionButton icon={PhotoIcon} text="Show Profile Photo" />
         </div>
         
         <button 
           onClick={() => router.push('/')}
-          className="w-full bg-gray-800/60 rounded-full py-3 font-semibold hover:bg-gray-700/80 transition-colors"
+          className="w-full bg-gray-800/70 rounded-xl py-4 font-semibold hover:bg-gray-700/80 transition-colors text-lg"
         >
           Change User
         </button>
         
-        <p className="text-center text-gray-500 text-xs mt-4">
-          Last Update: {new Date().toLocaleString()}
+        <p className="text-center text-gray-500 text-sm mt-4">
+          Last Update: {new Date().toLocaleTimeString()} - {new Date().toLocaleDateString('en-GB')}
         </p>
-      </div>
+      </main>
     </div>
   );
 }

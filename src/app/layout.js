@@ -1,16 +1,17 @@
-// src/app/layout.js
 import './globals.css';
 
 export const metadata = {
-  title: 'InSeen - Instagram Tool',
-  description: 'View Instagram content anonymously',
+  title: 'Story Viewer Pro', // <--- नाम बदल दिया
+  description: 'Anonymous Instagram Story Viewer and Downloader.',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-gray-900 min-h-screen text-white">
-        {children}
+      <body>
+        <div className="relative min-h-screen main-container">
+          {children}
+        </div>
       </body>
     </html>
   );
