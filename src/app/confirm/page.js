@@ -14,13 +14,11 @@ function Loading() {
 }
 
 // === आपका اصلی कंटेंट कंपोनेंट ===
-// हमने आपके सारे लॉजिक को इस नए कंपोनेंट में डाल दिया है
 function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const username = searchParams.get('username') || 'naushad__alam__12';
 
-  // बाद में यह डेटा API से आएगा
   const user = {
     name: 'Naushad alam',
     username: `@${username}`,
@@ -40,12 +38,12 @@ function ConfirmContent() {
   return (
     <div className="flex flex-col items-center justify-end min-h-screen p-6 text-center">
       <main className="w-full max-w-md mx-auto">
-        <img 
-          src={user.avatar} 
-          alt="Profile" 
+        <img
+          src={user.avatar}
+          alt="Profile"
           className="w-32 h-32 rounded-full mx-auto border-4 border-pink-500 object-cover"
         />
-        
+
         <div className="flex justify-center space-x-10 my-6 text-lg">
           {Object.entries(user.stats).map(([key, value]) => (
             <div key={key}>
@@ -60,13 +58,13 @@ function ConfirmContent() {
         <p className="whitespace-pre-line text-gray-300">{user.bio}</p>
 
         <div className="mt-10 space-y-4">
-          <button 
+          <button
             onClick={handleConfirm}
             className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-xl py-4 text-xl hover:opacity-90 transition-opacity"
           >
             Confirm User
           </button>
-          <button 
+          <button
             onClick={() => router.back()}
             className="text-red-400 hover:text-red-300 font-semibold text-lg"
           >
