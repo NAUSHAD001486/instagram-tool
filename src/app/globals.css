@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 body {
-  background-color: #121212; /* डार्क ब्लैक बैकग्राउंड */
+  background-color: #1a1a1a;
   color: white;
+}
+
+.main-bg::before {
+  content: "";
+  background-image: url('/background-grid.jpg'); /* आपकी इमेज */
+  background-size: cover;
+  background-position: center top;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.15;
+  z-index: -1;
 }

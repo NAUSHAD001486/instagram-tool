@@ -1,17 +1,15 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Story Viewer Pro', // <--- नाम बदल दिया
-  description: 'Anonymous Instagram Story Viewer and Downloader.',
-}
+  title: 'Story Viewer Pro',
+  description: 'View and download Instagram content anonymously.',
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <div className="relative min-h-screen main-container">
-          {children}
-        </div>
+      <body className="main-bg">
+        {children}
       </body>
     </html>
   );
