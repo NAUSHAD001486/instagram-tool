@@ -1,6 +1,7 @@
 'use client';
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import BackButton from '@/components/BackButton'; // <<< नया इम्पोर्ट
 
 function LoadingSpinner() {
   return <div className="flex items-center justify-center min-h-screen text-xl font-semibold">Loading...</div>;
@@ -14,7 +15,9 @@ function ConfirmContent() {
   const user = { name: 'Naushad alam', username: `@${username}`, avatar: '/profile-pic.jpg', stats: { posts: 166, followers: 977, following: 97 }, bio: 'azad patho Lab\nMADHEPURA' };
 
   return (
-    <div className="flex flex-col items-center justify-end min-h-screen p-6 text-center">
+    // === यहाँ बदलाव किया गया है ===
+    <div className="relative flex flex-col items-center justify-end min-h-screen p-6 text-center">
+      <BackButton /> {/* <<< बैक बटन यहाँ जोड़ा गया */}
       <main className="w-full max-w-md mx-auto">
         <img src={user.avatar} alt="Profile" className="w-32 h-32 rounded-full mx-auto border-4 border-pink-500 object-cover" />
         <div className="flex justify-center space-x-10 my-6 text-lg">

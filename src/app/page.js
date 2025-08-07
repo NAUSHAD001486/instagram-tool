@@ -16,13 +16,18 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-end min-h-screen p-6 text-center">
       <main className="w-full max-w-md mx-auto">
-        <h1 className="text-6xl font-bold tracking-wider mb-2" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>
-          In<span className="underline decoration-purple-500 decoration-2">Seen</span>
+        {/* === यहाँ बदलाव किया गया है === */}
+        <h1 className="text-5xl font-bold tracking-tight text-white">
+          Story Viewer Pro
         </h1>
-        <p className="text-gray-300 mb-6 text-lg">Story Viewer Pro</p>
-        <p className="text-gray-400 mb-8 max-w-xs mx-auto">
+        <p className="text-gray-400 mt-2 mb-8 text-md">
+          Anonymous Instagram Story Viewer
+        </p>
+
+        <p className="text-gray-300 mb-8 max-w-xs mx-auto">
           Just enter the username of the account whose details you want to review.
         </p>
+
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="relative">
             <input
