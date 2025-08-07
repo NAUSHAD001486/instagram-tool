@@ -14,19 +14,19 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-end min-h-screen p-6 text-center">
+    // === यहाँ बदलाव किया गया है ===
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
       <main className="w-full max-w-md mx-auto">
-        {/* === यहाँ बदलाव किया गया है === */}
-        <h1 className="text-5xl font-bold tracking-tight text-white">
+        
+        {/* === ब्रांड का नाम अपडेट किया गया === */}
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-fuchsia-500 to-purple-500 bg-clip-text text-transparent">
           Story Viewer Pro
         </h1>
-        <p className="text-gray-400 mt-2 mb-8 text-md">
+        <p className="text-gray-300 mt-3 mb-12 text-lg tracking-wide">
           Anonymous Instagram Story Viewer
         </p>
 
-        <p className="text-gray-300 mb-8 max-w-xs mx-auto">
-          Just enter the username of the account whose details you want to review.
-        </p>
+        {/* अनावश्यक लाइन हटा दी गई है */}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="relative">
@@ -40,7 +40,7 @@ export default function HomePage() {
           </div>
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-fuchsia-600 to-red-500 text-white font-bold rounded-xl py-4 text-xl hover:opacity-90 transition-opacity"
+            className="w-full bg-gradient-to-r from-fuchsia-600 to-red-500 text-white font-bold rounded-xl py-4 text-xl hover:opacity-90 transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95"
           >
             Select User
           </button>
