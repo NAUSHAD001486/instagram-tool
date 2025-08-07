@@ -14,19 +14,17 @@ export default function HomePage() {
   };
 
   return (
-    // === यहाँ बदलाव किया गया है ===
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
-      <main className="w-full max-w-md mx-auto">
+    // === यहाँ लेआउट में बदलाव किया गया है ===
+    // मोबाइल पर नीचे और डेस्कटॉप पर सेंटर में
+    <div className="flex flex-col items-center justify-end min-h-screen p-6 pb-16 sm:justify-center sm:pb-6">
+      <main className="w-full max-w-md mx-auto text-center">
         
-        {/* === ब्रांड का नाम अपडेट किया गया === */}
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-fuchsia-500 to-purple-500 bg-clip-text text-transparent">
           Story Viewer Pro
         </h1>
         <p className="text-gray-300 mt-3 mb-12 text-lg tracking-wide">
           Anonymous Instagram Story Viewer
         </p>
-
-        {/* अनावश्यक लाइन हटा दी गई है */}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="relative">
@@ -38,9 +36,14 @@ export default function HomePage() {
               required
             />
           </div>
+          
+          {/* === यहाँ बटन के एनिमेशन में बदलाव किया गया है === */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-fuchsia-600 to-red-500 text-white font-bold rounded-xl py-4 text-xl hover:opacity-90 transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95"
+            className="w-full bg-gradient-to-r from-fuchsia-600 to-red-500 text-white font-bold rounded-xl py-4 text-xl 
+                       transition-all duration-300 ease-in-out 
+                       hover:scale-105 hover:shadow-lg hover:shadow-purple-500/40 
+                       active:scale-95"
           >
             Select User
           </button>
