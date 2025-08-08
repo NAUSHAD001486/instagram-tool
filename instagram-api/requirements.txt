@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+mangum
+python-dotenv
+httpx
+tenacity
+redis
+beautifulsoup4

@@ -1,0 +1,32 @@
+service: instagram-api
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: ap-south-1
+  stage: dev
+  memorySize: 512  # अधिक मेमोरी बेहतर परफॉरमेंस के लिए
+  timeout: 30
+  environment:
+    SCRAPER_API_KEY: ${env:SCRAPER_API_KEY}
+    SCRAPINGDOG_API_KEY: ${env:SCRAPINGDOG_API_KEY}
+    REDIS_URL: ${env:REDIS_URL}
+
+functions:
+  api:
+    handler: main.handler
+    events:
+      - http:
+          path: /api/scrape
+          method: post
+      - http:
+          path: /health
+          method: get
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    useStaticCache: true
