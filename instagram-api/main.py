@@ -1,47 +1,54 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware # <<< इसे इम्पोर्ट करें
 import httpx
 from dotenv import load_dotenv
 from tenacity import retry, stop_after_attempt, wait_exponential
 import re
+import mangum
 
 # --- सेटअप ---
-load_dotenv() # .env फ़ाइल से API कीज़ लोड करेगा
-
+load_dotenv()
 app = FastAPI()
+
+# === यहाँ बदलाव किया गया है: CORS को सक्षम करें ===
+# हम सभी स्रोतों से आने वाले अनुरोधों को अनुमति दे रहे हैं
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # आप इसे और सुरक्षित बनाने के लिए बाद में अपनी Vercel URL डाल सकते हैं
+    allow_credentials=True,
+    allow_methods=["*"],  # सभी मेथड्स (GET, POST, आदि) को अनुमति दें
+    allow_headers=["*"],  # सभी हेडर्स को अनुमति दें
+)
 
 SCRAPER_API_KEY = os.getenv("SCRAPER_API_KEY")
 SCRAPINGDOG_API_KEY = os.getenv("SCRAPINGDOG_API_KEY")
 
-# --- हेल्पर फंक्शन: लिंक का प्रकार पहचानना ---
 def get_link_type(url: str):
     if re.search(r"/(p|reel|tv|reels)/", url):
         return "post"
-    # प्रोफाइल URL के लिए और भी बेहतर पहचान की जा सकती है
     elif re.search(r"instagram\.com/([a-zA-Z0-9_\.]+)/?$", url):
         return "profile"
     return "unknown"
 
-# --- स्क्रैपिंग लॉजिक ---
-# यह फंक्शन 2 बार रिट्राई करेगा और फिर फेल हो जाएगा
 @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=1, min=2, max=10))
 async def scrape_with_scraperapi(url: str):
     print("Trying with ScraperAPI...")
     scraper_url = f"http://api.scraperapi.com?api_key={SCRAPER_API_KEY}&url={url}"
     async with httpx.AsyncClient() as client:
-        response = await client.get(scraper_url)
-        response.raise_for_status() # अगर कोई एरर है तो यहीं रुक जाएगा
-        return response.json() # या response.text() अगर HTML मिलता है
+        response = await client.get(scraper_url, timeout=30.0) # टाइमआउट जोड़ें
+        response.raise_for_status()
+        # यह मानते हुए कि API हमेशा JSON लौटाता है, अगर नहीं तो इसे बदलना होगा
+        return response.json()
 
 async def scrape_with_scrapingdog(url: str):
     print("Falling back to Scrapingdog...")
     scraper_url = f"https://api.scrapingdog.com/scrape?api_key={SCRAPINGDOG_API_KEY}&url={url}"
     async with httpx.AsyncClient() as client:
-        response = await client.get(scraper_url)
+        response = await client.get(scraper_url, timeout=30.0) # टाइमआउट जोड़ें
         response.raise_for_status()
-        return response.json() # या response.text()
+        return response.json()
 
-# --- मुख्य API एंडपॉइंट ---
 @app.post("/api/scrape")
 async def scrape_instagram_url(request: dict):
     url = request.get("url")
@@ -52,27 +59,18 @@ async def scrape_instagram_url(request: dict):
     if link_type == "unknown":
         raise HTTPException(status_code=400, detail="Invalid Instagram URL provided")
 
-    # TODO: स्टेप 4 में हम यहाँ Redis कैशिंग का लॉजिक जोड़ेंगे
-    
+    # TODO: कैशिंग लॉजिक यहाँ आएगा
+
     try:
-        # पहले ScraperAPI से कोशिश करो
-        data = await scrape_with_scraperapi(url)
+        # अभी के लिए, हम सिर्फ एक डमी प्रतिक्रिया भेज रहे हैं यह जांचने के लिए कि कनेक्शन काम कर रहा है
+        print(f"Received request for {url} of type {link_type}")
+        return {
+            "link_type": link_type,
+            "message": "Connection Successful! Scraping logic will be here."
+        }
+        
     except Exception as e:
-        print(f"ScraperAPI failed: {e}")
-        try:
-            # अगर वो फेल हो, तो Scrapingdog से कोशिश करो
-            data = await scrape_with_scrapingdog(url)
-        except Exception as final_e:
-            print(f"Scrapingdog also failed: {final_e}")
-            raise HTTPException(status_code=503, detail="Both scraping services failed. Please try again later.")
+        print(f"An unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="An internal error occurred.")
 
-    # अभी के लिए, हम सिर्फ स्क्रैप किया हुआ डेटा लौटा रहे हैं
-    # बाद में हम इसे अपने फॉर्मेट में पार्स करेंगे
-    return {"link_type": link_type, "scraped_data": data}
-
-
-# --- डिप्लॉयमेंट के लिए ---
-# हम mangum का उपयोग अभी भी करेंगे, लेकिन उसे serverless.yml में मैनेज किया जाता है
-# इसलिए यहाँ से handler हटाने से कोई फर्क नहीं पड़ता, लेकिन रखना बेहतर है
-import mangum
 handler = mangum.Mangum(app)

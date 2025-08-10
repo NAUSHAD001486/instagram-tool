@@ -1,32 +1,48 @@
 service: instagram-api
+frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.11
   region: ap-south-1
   stage: dev
-  memorySize: 512  # अधिक मेमोरी बेहतर परफॉरमेंस के लिए
-  timeout: 30
   environment:
+    # सीधे .env फ़ाइल से वेरिएबल्स लोड करें
     SCRAPER_API_KEY: ${env:SCRAPER_API_KEY}
     SCRAPINGDOG_API_KEY: ${env:SCRAPINGDOG_API_KEY}
-    REDIS_URL: ${env:REDIS_URL}
+    DYNAMODB_TABLE_NAME: instagram-cache
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:GetItem"
+            - "dynamodb:PutItem"
+          Resource: "arn:aws:dynamodb:ap-south-1:*:table/instagram-cache"
+
+plugins:
+  - serverless-python-requirements
+  - serverless-dotenv-plugin  # .env फ़ाइल सपोर्ट के लिए
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+    zip: true
+    noDeploy:
+      - boto3
+      - botocore
+      - s3transfer
+      - urllib3
+    useDownloadCache: true
+    useStaticCache: true
 
 functions:
   api:
-    handler: main.handler
+    handler: handler.scrape
+    memorySize: 256
+    timeout: 30
     events:
       - http:
           path: /api/scrape
           method: post
-      - http:
-          path: /health
-          method: get
-
-plugins:
-  - serverless-python-requirements
-
-custom:
-  pythonRequirements:
-    dockerizePip: true
-    useStaticCache: true
+          cors: true
