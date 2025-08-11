@@ -1,10 +1,10 @@
 'use client';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import BackButton from '@/components/BackButton';
-import { fetchInstagramData } from '@/services/api'; // <<< नया इम्पोर्ट
+import BackButton from '@/components/BackButton'; // <<< सुनिश्चित करें कि यह लाइन सही है
+import { fetchInstagramData } from '@/services/api';
 
-// --- यह एक लोडिंग स्क्रीन है जो डेटा आने तक दिखेगी ---
+// ErrorDisplay और LoadingSpinner कंपोनेंट को इसी फाइल में रखें
 function LoadingSpinner() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center">
@@ -14,10 +14,11 @@ function LoadingSpinner() {
   );
 }
 
-// --- यह एरर स्क्रीन है जो API फेल होने पर दिखेगी ---
 function ErrorDisplay({ message, onRetry }) {
+  const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+       <BackButton /> {/* एरर पेज पर भी बैक बटन जोड़ें */}
       <p className="text-xl text-red-400">Oops! Something went wrong.</p>
       <p className="text-gray-400 mt-2">{message}</p>
       <button onClick={onRetry} className="mt-6 bg-purple-600 text-white font-bold rounded-full py-2 px-6 text-lg hover:opacity-90">
@@ -27,8 +28,7 @@ function ErrorDisplay({ message, onRetry }) {
   );
 }
 
-
-// --- यह हमारा मुख्य कंटेंट है जो अब API से डेटा लेगा ---
+// मुख्य कंटेंट कंपोनेंट
 function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,7 +39,11 @@ function ConfirmContent() {
   const [error, setError] = useState(null);
 
   const fetchData = async () => {
-    if (!username) return;
+    if (!username) {
+        setError("No username provided.");
+        setLoading(false);
+        return;
+    }
     setLoading(true);
     setError(null);
     const profileUrl = `https://www.instagram.com/${username}/`;
@@ -62,7 +66,7 @@ function ConfirmContent() {
   if (error) return <ErrorDisplay message={error} onRetry={fetchData} />;
   if (!apiResponse || !apiResponse.data) return null;
 
-  const profileData = apiResponse.data; // डेटा को निकालें
+  const profileData = apiResponse.data;
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen p-6 pb-12 sm:pb-6">
@@ -93,5 +97,14 @@ function ConfirmContent() {
         </div>
       </main>
     </div>
+  );
+}
+
+// मुख्य पेज एक्सपोर्ट
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ConfirmContent />
+    </Suspense>
   );
 }
