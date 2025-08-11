@@ -10,10 +10,10 @@
       "region": "ap-south-1",
       "stage": "dev",
       "environment": {
-        "DYNAMODB_TABLE_NAME": "instagram-cache",
         "SCRAPER_API_KEY": "SCRAPER_API_KEY=0a4198c2a1ba4d5a0fc83bdc2acf3247",
         "SCRAPINGDOG_API_KEY": "SCRAPINGDOG_API_KEY=6880b6230982aa8b8a059c5b",
-        "SENTRY_DSN": "your_sentry_dsn_value"
+        "SENTRY_DSN": "your_sentry_dsn_value",
+        "DYNAMODB_TABLE_NAME": "instagram-cache"
       },
       "iam": {
         "role": {
@@ -208,19 +208,19 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/instagram-api/dev/1754932932277-2025-08-11T17:22:12.277Z/instagram-api.zip"
+                "S3Key": "serverless/instagram-api/dev/1754946488516-2025-08-11T21:08:08.516Z/instagram-api.zip"
               },
               "Handler": "handler.scrape",
               "Runtime": "python3.11",
               "FunctionName": "instagram-api-dev-api",
-              "MemorySize": 256,
-              "Timeout": 30,
+              "MemorySize": 1024,
+              "Timeout": 90,
               "Environment": {
                 "Variables": {
-                  "DYNAMODB_TABLE_NAME": "instagram-cache",
                   "SCRAPER_API_KEY": "SCRAPER_API_KEY=0a4198c2a1ba4d5a0fc83bdc2acf3247",
                   "SCRAPINGDOG_API_KEY": "SCRAPINGDOG_API_KEY=6880b6230982aa8b8a059c5b",
-                  "SENTRY_DSN": "your_sentry_dsn_value"
+                  "SENTRY_DSN": "your_sentry_dsn_value",
+                  "DYNAMODB_TABLE_NAME": "instagram-cache"
                 }
               },
               "Role": {
@@ -234,7 +234,7 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionJzgF23BHCehUcRzHft4rLQZnW2bvL4ECgXG558jw": {
+          "ApiLambdaVersionSGqjnDGZogTwlH8LJ2Kka4T7EAY8xgDphBRwfTuOczg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -244,150 +244,27 @@
               "CodeSha256": "iYwgIVfiv1undC0PLE19W2waWOkH+DlLLsGZlKECq18="
             }
           },
-          "ApiGatewayRestApi": {
-            "Type": "AWS::ApiGateway::RestApi",
+          "HttpApi": {
+            "Type": "AWS::ApiGatewayV2::Api",
             "Properties": {
               "Name": "dev-instagram-api",
-              "EndpointConfiguration": {
-                "Types": [
-                  "EDGE"
-                ]
-              },
-              "Policy": ""
+              "ProtocolType": "HTTP"
             }
           },
-          "ApiGatewayResourceApi": {
-            "Type": "AWS::ApiGateway::Resource",
+          "HttpApiStage": {
+            "Type": "AWS::ApiGatewayV2::Stage",
             "Properties": {
-              "ParentId": {
-                "Fn::GetAtt": [
-                  "ApiGatewayRestApi",
-                  "RootResourceId"
-                ]
+              "ApiId": {
+                "Ref": "HttpApi"
               },
-              "PathPart": "api",
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
+              "StageName": "$default",
+              "AutoDeploy": true,
+              "DefaultRouteSettings": {
+                "DetailedMetricsEnabled": false
               }
             }
           },
-          "ApiGatewayResourceApiScrape": {
-            "Type": "AWS::ApiGateway::Resource",
-            "Properties": {
-              "ParentId": {
-                "Ref": "ApiGatewayResourceApi"
-              },
-              "PathPart": "scrape",
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
-          "ApiGatewayMethodApiScrapeOptions": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "AuthorizationType": "NONE",
-              "HttpMethod": "OPTIONS",
-              "MethodResponses": [
-                {
-                  "StatusCode": "200",
-                  "ResponseParameters": {
-                    "method.response.header.Access-Control-Allow-Origin": true,
-                    "method.response.header.Access-Control-Allow-Headers": true,
-                    "method.response.header.Access-Control-Allow-Methods": true
-                  },
-                  "ResponseModels": {}
-                }
-              ],
-              "RequestParameters": {},
-              "Integration": {
-                "Type": "MOCK",
-                "RequestTemplates": {
-                  "application/json": "{statusCode:200}"
-                },
-                "ContentHandling": "CONVERT_TO_TEXT",
-                "IntegrationResponses": [
-                  {
-                    "StatusCode": "200",
-                    "ResponseParameters": {
-                      "method.response.header.Access-Control-Allow-Origin": "'*'",
-                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
-                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
-                    },
-                    "ResponseTemplates": {
-                      "application/json": ""
-                    }
-                  }
-                ]
-              },
-              "ResourceId": {
-                "Ref": "ApiGatewayResourceApiScrape"
-              },
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
-          "ApiGatewayMethodApiScrapePost": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "HttpMethod": "POST",
-              "RequestParameters": {},
-              "ResourceId": {
-                "Ref": "ApiGatewayResourceApiScrape"
-              },
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "ApiKeyRequired": false,
-              "AuthorizationType": "NONE",
-              "Integration": {
-                "IntegrationHttpMethod": "POST",
-                "Type": "AWS_PROXY",
-                "Uri": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition"
-                      },
-                      ":apigateway:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":lambda:path/2015-03-31/functions/",
-                      {
-                        "Fn::GetAtt": [
-                          "ApiLambdaFunction",
-                          "Arn"
-                        ]
-                      },
-                      "/invocations"
-                    ]
-                  ]
-                }
-              },
-              "MethodResponses": []
-            },
-            "DependsOn": [
-              "ApiLambdaPermissionApiGateway"
-            ]
-          },
-          "ApiGatewayDeployment1754932917562": {
-            "Type": "AWS::ApiGateway::Deployment",
-            "Properties": {
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "StageName": "dev"
-            },
-            "DependsOn": [
-              "ApiGatewayMethodApiScrapeOptions",
-              "ApiGatewayMethodApiScrapePost"
-            ]
-          },
-          "ApiLambdaPermissionApiGateway": {
+          "ApiLambdaPermissionHttpApi": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
               "FunctionName": {
@@ -416,13 +293,48 @@
                     },
                     ":",
                     {
-                      "Ref": "ApiGatewayRestApi"
+                      "Ref": "HttpApi"
                     },
-                    "/*/*"
+                    "/*"
                   ]
                 ]
               }
             }
+          },
+          "HttpApiIntegrationApi": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"ApiLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostApiScrape": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /api/scrape",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationApi"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationApi"
           }
         },
         "Outputs": {
@@ -437,21 +349,30 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionJzgF23BHCehUcRzHft4rLQZnW2bvL4ECgXG558jw"
+              "Ref": "ApiLambdaVersionSGqjnDGZogTwlH8LJ2Kka4T7EAY8xgDphBRwfTuOczg"
             },
             "Export": {
               "Name": "sls-instagram-api-dev-ApiLambdaFunctionQualifiedArn"
             }
           },
-          "ServiceEndpoint": {
-            "Description": "URL of the service endpoint",
+          "HttpApiId": {
+            "Description": "Id of the HTTP API",
+            "Value": {
+              "Ref": "HttpApi"
+            },
+            "Export": {
+              "Name": "sls-instagram-api-dev-HttpApiId"
+            }
+          },
+          "HttpApiUrl": {
+            "Description": "URL of the HTTP API",
             "Value": {
               "Fn::Join": [
                 "",
                 [
                   "https://",
                   {
-                    "Ref": "ApiGatewayRestApi"
+                    "Ref": "HttpApi"
                   },
                   ".execute-api.",
                   {
@@ -460,13 +381,12 @@
                   ".",
                   {
                     "Ref": "AWS::URLSuffix"
-                  },
-                  "/dev"
+                  }
                 ]
               ]
             },
             "Export": {
-              "Name": "sls-instagram-api-dev-ServiceEndpoint"
+              "Name": "sls-instagram-api-dev-HttpApiUrl"
             }
           }
         }
@@ -567,40 +487,25 @@
     "functions": {
       "api": {
         "handler": "handler.scrape",
-        "memorySize": 256,
-        "timeout": 30,
+        "memorySize": 1024,
+        "timeout": 90,
         "events": [
           {
-            "http": {
-              "path": "api/scrape",
+            "httpApi": {
+              "path": "/api/scrape",
               "method": "post",
-              "cors": {
-                "origin": "*",
-                "methods": [
-                  "OPTIONS",
-                  "POST"
-                ],
-                "headers": [
-                  "Content-Type",
-                  "X-Amz-Date",
-                  "Authorization",
-                  "X-Api-Key",
-                  "X-Amz-Security-Token",
-                  "X-Amz-User-Agent",
-                  "X-Amzn-Trace-Id"
-                ],
-                "allowCredentials": false
-              },
-              "integration": "AWS_PROXY"
-            }
+              "cors": true
+            },
+            "resolvedMethod": "POST",
+            "resolvedPath": "/api/scrape"
           }
         ],
         "name": "instagram-api-dev-api",
         "package": {},
-        "memory": 256,
+        "memory": 1024,
         "runtime": "python3.11",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionJzgF23BHCehUcRzHft4rLQZnW2bvL4ECgXG558jw"
+        "versionLogicalId": "ApiLambdaVersionSGqjnDGZogTwlH8LJ2Kka4T7EAY8xgDphBRwfTuOczg"
       }
     },
     "configValidationMode": "warn",
@@ -626,7 +531,7 @@
     "artifact": "/Users/nausadalam/instagram-tool/instagram-api/.serverless/instagram-api.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/instagram-api/dev/1754932932277-2025-08-11T17:22:12.277Z",
+    "artifactDirectoryName": "serverless/instagram-api/dev/1754946488516-2025-08-11T21:08:08.516Z",
     "artifact": "instagram-api.zip"
   }
 }

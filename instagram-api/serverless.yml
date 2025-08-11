@@ -7,23 +7,23 @@ provider:
   region: ap-south-1
   stage: dev
   environment:
-    DYNAMODB_TABLE_NAME: instagram-cache
     SCRAPER_API_KEY: ${ssm:/instagram-api/dev/SCRAPER_API_KEY}
     SCRAPINGDOG_API_KEY: ${ssm:/instagram-api/dev/SCRAPINGDOG_API_KEY}
     SENTRY_DSN: ${ssm:/instagram-api/dev/SENTRY_DSN}
+    DYNAMODB_TABLE_NAME: instagram-cache
   iam:
     role:
       statements:
-        - Effect: Allow
-          Action:
-            - dynamodb:GetItem
-            - dynamodb:PutItem
+        - Effect: "Allow"
+          Action: ["dynamodb:GetItem", "dynamodb:PutItem"]
           Resource: "arn:aws:dynamodb:ap-south-1:*:table/instagram-cache"
-        - Effect: Allow
-          Action:
-            - ssm:GetParameters
-            - ssm:GetParameter
+        - Effect: "Allow"
+          Action: ["ssm:GetParameters", "ssm:GetParameter"]
           Resource: "arn:aws:ssm:ap-south-1:*:parameter/instagram-api/dev/*"
+  
+  # === यहाँ बदलाव किया गया है: httpApi की परिभाषा यहाँ ले आए हैं ===
+  httpApi:
+    cors: true
 
 plugins:
   - serverless-python-requirements
@@ -35,10 +35,11 @@ custom:
 functions:
   api:
     handler: handler.scrape
-    memorySize: 256
-    timeout: 30
+    memorySize: 1024
+    # === यहाँ बदलाव किया गया है: टाइमआउट को 29 सेकंड कर दिया है ===
+    timeout: 29
     events:
-      - http:
+      - httpApi:
           path: /api/scrape
           method: post
-          cors: true
+          # CORS को provider लेवल पर हैंडल किया जा रहा है, इसलिए यहाँ से हटा दिया है
