@@ -13,25 +13,37 @@ TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME')
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(TABLE_NAME)
 
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    integrations=[AwsLambdaIntegration(timeout_warning=True)],
-    traces_sample_rate=1.0,
-    profiles_sample_rate=1.0,
-)
+# Sentry को इनिशियलाइज़ करें, अगर DSN मौजूद है
+if SENTRY_DSN and SENTRY_DSN != "None":
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[AwsLambdaIntegration(timeout_warning=True)],
+        traces_sample_rate=1.0,
+    )
 
 # --- हेल्पर फंक्शन ---
 def get_link_type(url: str):
+    # प्रोफाइल लिंक की पहचान (जैसे /username/ या /username?igsh=...)
+    profile_match = re.search(r"instagram\.com/([a-zA-Z0-9_\.]+)", url)
+    if profile_match:
+        # यह सुनिश्चित करें कि यह कोई पोस्ट लिंक नहीं है
+        if not re.search(r"/(p|reel|tv|reels)/", url):
+            return "profile"
+
+    # पोस्ट लिंक की पहचान
     if re.search(r"/(p|reel|tv|reels)/", url):
         return "post"
-    if re.search(r"instagram\.com/([a-zA-Z0-9_\.]+)/?$", url):
-        return "profile"
+        
     return "unknown"
 
 def create_response(status_code, body):
     return {
         "statusCode": status_code,
-        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"},
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": True,
+        },
         "body": json.dumps(body)
     }
 
@@ -46,7 +58,7 @@ def scrape(event, context):
 
         link_type = get_link_type(url)
         if link_type == "unknown":
-            return create_response(400, {"success": False, "error": "Invalid Instagram URL."})
+            return create_response(400, {"success": False, "error": "Invalid Instagram URL provided."})
 
         # 1. कैश में जांच करें
         try:
@@ -61,7 +73,6 @@ def scrape(event, context):
         print("Cache MISS")
         # 2. अगर कैश में नहीं है, तो स्क्रैप करें
         scraped_data = scrape_url(url, link_type)
-        
         response_body = {"success": True, "link_type": link_type, "data": scraped_data}
 
         # 3. नए डेटा को कैश में डालें (40 मिनट TTL)

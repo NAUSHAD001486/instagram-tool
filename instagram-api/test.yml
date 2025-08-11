@@ -1,0 +1,7 @@
+service: test-service
+provider:
+  name: aws
+  runtime: python3.11
+functions:
+  hello:
+    handler: handler.hello

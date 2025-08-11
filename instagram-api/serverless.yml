@@ -7,34 +7,30 @@ provider:
   region: ap-south-1
   stage: dev
   environment:
-    # सीधे .env फ़ाइल से वेरिएबल्स लोड करें
-    SCRAPER_API_KEY: ${env:SCRAPER_API_KEY}
-    SCRAPINGDOG_API_KEY: ${env:SCRAPINGDOG_API_KEY}
     DYNAMODB_TABLE_NAME: instagram-cache
+    SCRAPER_API_KEY: ${ssm:/instagram-api/dev/SCRAPER_API_KEY}
+    SCRAPINGDOG_API_KEY: ${ssm:/instagram-api/dev/SCRAPINGDOG_API_KEY}
+    SENTRY_DSN: ${ssm:/instagram-api/dev/SENTRY_DSN}
   iam:
     role:
       statements:
-        - Effect: "Allow"
+        - Effect: Allow
           Action:
-            - "dynamodb:GetItem"
-            - "dynamodb:PutItem"
+            - dynamodb:GetItem
+            - dynamodb:PutItem
           Resource: "arn:aws:dynamodb:ap-south-1:*:table/instagram-cache"
+        - Effect: Allow
+          Action:
+            - ssm:GetParameters
+            - ssm:GetParameter
+          Resource: "arn:aws:ssm:ap-south-1:*:parameter/instagram-api/dev/*"
 
 plugins:
   - serverless-python-requirements
-  - serverless-dotenv-plugin  # .env फ़ाइल सपोर्ट के लिए
 
 custom:
   pythonRequirements:
     dockerizePip: non-linux
-    zip: true
-    noDeploy:
-      - boto3
-      - botocore
-      - s3transfer
-      - urllib3
-    useDownloadCache: true
-    useStaticCache: true
 
 functions:
   api:

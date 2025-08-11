@@ -10,9 +10,10 @@
       "region": "ap-south-1",
       "stage": "dev",
       "environment": {
-        "SCRAPER_API_KEY": "0a4198c2a1ba4d5a0fc83bdc2acf3247",
-        "SCRAPINGDOG_API_KEY": "6880b6230982aa8b8a059c5b",
-        "DYNAMODB_TABLE_NAME": "instagram-cache"
+        "DYNAMODB_TABLE_NAME": "instagram-cache",
+        "SCRAPER_API_KEY": "SCRAPER_API_KEY=0a4198c2a1ba4d5a0fc83bdc2acf3247",
+        "SCRAPINGDOG_API_KEY": "SCRAPINGDOG_API_KEY=6880b6230982aa8b8a059c5b",
+        "SENTRY_DSN": "your_sentry_dsn_value"
       },
       "iam": {
         "role": {
@@ -24,6 +25,14 @@
                 "dynamodb:PutItem"
               ],
               "Resource": "arn:aws:dynamodb:ap-south-1:*:table/instagram-cache"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter"
+              ],
+              "Resource": "arn:aws:ssm:ap-south-1:*:parameter/instagram-api/dev/*"
             }
           ]
         }
@@ -168,6 +177,9 @@
                       },
                       {
                         "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][0]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][1]"
                       }
                     ]
                   }
@@ -196,7 +208,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/instagram-api/dev/1754839768853-2025-08-10T15:29:28.853Z/instagram-api.zip"
+                "S3Key": "serverless/instagram-api/dev/1754932932277-2025-08-11T17:22:12.277Z/instagram-api.zip"
               },
               "Handler": "handler.scrape",
               "Runtime": "python3.11",
@@ -205,9 +217,10 @@
               "Timeout": 30,
               "Environment": {
                 "Variables": {
-                  "SCRAPER_API_KEY": "0a4198c2a1ba4d5a0fc83bdc2acf3247",
-                  "SCRAPINGDOG_API_KEY": "6880b6230982aa8b8a059c5b",
-                  "DYNAMODB_TABLE_NAME": "instagram-cache"
+                  "DYNAMODB_TABLE_NAME": "instagram-cache",
+                  "SCRAPER_API_KEY": "SCRAPER_API_KEY=0a4198c2a1ba4d5a0fc83bdc2acf3247",
+                  "SCRAPINGDOG_API_KEY": "SCRAPINGDOG_API_KEY=6880b6230982aa8b8a059c5b",
+                  "SENTRY_DSN": "your_sentry_dsn_value"
                 }
               },
               "Role": {
@@ -221,14 +234,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersioneM5gpTMsu4y30EZ5uW280rGcMM4xHiIV4IigzbPD0": {
+          "ApiLambdaVersionJzgF23BHCehUcRzHft4rLQZnW2bvL4ECgXG558jw": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "oQ9380x50UXDJI9KShjoVfwedNhr5ZSQQGIbioTAMY8="
+              "CodeSha256": "iYwgIVfiv1undC0PLE19W2waWOkH+DlLLsGZlKECq18="
             }
           },
           "ApiGatewayRestApi": {
@@ -361,7 +374,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1754839765106": {
+          "ApiGatewayDeployment1754932917562": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -424,7 +437,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersioneM5gpTMsu4y30EZ5uW280rGcMM4xHiIV4IigzbPD0"
+              "Ref": "ApiLambdaVersionJzgF23BHCehUcRzHft4rLQZnW2bvL4ECgXG558jw"
             },
             "Export": {
               "Name": "sls-instagram-api-dev-ApiLambdaFunctionQualifiedArn"
@@ -544,21 +557,11 @@
     },
     "custom": {
       "pythonRequirements": {
-        "dockerizePip": "non-linux",
-        "zip": true,
-        "noDeploy": [
-          "boto3",
-          "botocore",
-          "s3transfer",
-          "urllib3"
-        ],
-        "useDownloadCache": true,
-        "useStaticCache": true
+        "dockerizePip": "non-linux"
       }
     },
     "plugins": [
-      "serverless-python-requirements",
-      "serverless-dotenv-plugin"
+      "serverless-python-requirements"
     ],
     "pluginsData": {},
     "functions": {
@@ -597,7 +600,7 @@
         "memory": 256,
         "runtime": "python3.11",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersioneM5gpTMsu4y30EZ5uW280rGcMM4xHiIV4IigzbPD0"
+        "versionLogicalId": "ApiLambdaVersionJzgF23BHCehUcRzHft4rLQZnW2bvL4ECgXG558jw"
       }
     },
     "configValidationMode": "warn",
@@ -623,7 +626,7 @@
     "artifact": "/Users/nausadalam/instagram-tool/instagram-api/.serverless/instagram-api.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/instagram-api/dev/1754839768853-2025-08-10T15:29:28.853Z",
+    "artifactDirectoryName": "serverless/instagram-api/dev/1754932932277-2025-08-11T17:22:12.277Z",
     "artifact": "instagram-api.zip"
   }
 }
