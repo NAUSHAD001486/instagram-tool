@@ -74,7 +74,7 @@
     "ApiLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/instagram-api-dev-api"
+        "LogGroupName": "/aws/lambda/instagram-api-final-prod-api"
       }
     },
     "IamRoleLambdaExecution": {
@@ -102,8 +102,8 @@
               "Fn::Join": [
                 "-",
                 [
-                  "instagram-api",
-                  "dev",
+                  "instagram-api-final",
+                  "prod",
                   "lambda"
                 ]
               ]
@@ -120,7 +120,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/instagram-api-dev*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/instagram-api-final-prod*:*"
                     }
                   ]
                 },
@@ -131,44 +131,43 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/instagram-api-dev*:*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/instagram-api-final-prod*:*:*"
                     }
                   ]
                 },
                 {
                   "Effect": "Allow",
                   "Action": [
-                    "dynamodb:GetItem",
-                    "dynamodb:PutItem"
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
                   ],
-                  "Resource": "arn:aws:dynamodb:ap-south-1:*:table/instagram-cache"
+                  "Resource": "arn:aws:logs:us-east-1:*:*"
                 },
                 {
                   "Effect": "Allow",
                   "Action": [
-                    "ssm:GetParameters",
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:UpdateItem",
+                    "dynamodb:DeleteItem",
+                    "dynamodb:Scan"
+                  ],
+                  "Resource": "arn:aws:dynamodb:us-east-1:*:table/instagram-cache-final"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
                     "ssm:GetParameter"
                   ],
-                  "Resource": "arn:aws:ssm:ap-south-1:*:parameter/instagram-api/dev/*"
+                  "Resource": "arn:aws:ssm:us-east-1:*:parameter/instagram-api/*"
                 }
               ]
             }
           }
         ],
         "Path": "/",
-        "RoleName": {
-          "Fn::Join": [
-            "-",
-            [
-              "instagram-api",
-              "dev",
-              {
-                "Ref": "AWS::Region"
-              },
-              "lambdaRole"
-            ]
-          ]
-        }
+        "RoleName": "instagram-api-final-role"
       }
     },
     "ApiLambdaFunction": {
@@ -178,19 +177,21 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/instagram-api/dev/1754946488516-2025-08-11T21:08:08.516Z/instagram-api.zip"
+          "S3Key": "serverless/instagram-api-final/prod/1755187045957-2025-08-14T15:57:25.957Z/instagram-api-final.zip"
         },
         "Handler": "handler.scrape",
         "Runtime": "python3.11",
-        "FunctionName": "instagram-api-dev-api",
-        "MemorySize": 1024,
-        "Timeout": 90,
+        "FunctionName": "instagram-api-final-prod-api",
+        "MemorySize": 3008,
+        "Timeout": 29,
         "Environment": {
           "Variables": {
-            "SCRAPER_API_KEY": "SCRAPER_API_KEY=0a4198c2a1ba4d5a0fc83bdc2acf3247",
-            "SCRAPINGDOG_API_KEY": "SCRAPINGDOG_API_KEY=6880b6230982aa8b8a059c5b",
-            "SENTRY_DSN": "your_sentry_dsn_value",
-            "DYNAMODB_TABLE_NAME": "instagram-cache"
+            "SCRAPER_API_KEY": "ef73e97059e19e44e271e17ec8d86c6e",
+            "SCRAPINGDOG_API_KEY": "6880b6230982aa8b8a059c5b",
+            "SCRAPINGBEE_API_KEY": "U1GQPZ2V3UJYH7T4V6LJ9Y7WZR",
+            "DYNAMODB_TABLE_NAME": "instagram-cache-final",
+            "TZ": "Asia/Kolkata",
+            "LOG_LEVEL": "DEBUG"
           }
         },
         "Role": {
@@ -204,21 +205,39 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersionSGqjnDGZogTwlH8LJ2Kka4T7EAY8xgDphBRwfTuOczg": {
+    "ApiLambdaVersion1rsMG53bMhDvplkdAbwfJe9e9UL9CDZjb6sirfGXY": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "iYwgIVfiv1undC0PLE19W2waWOkH+DlLLsGZlKECq18="
+        "CodeSha256": "0VuervKkk5PPaROrY3GHJNbZoEI6mZ6wQhyu9FlRHck="
       }
     },
     "HttpApi": {
       "Type": "AWS::ApiGatewayV2::Api",
       "Properties": {
-        "Name": "dev-instagram-api",
-        "ProtocolType": "HTTP"
+        "Name": "prod-instagram-api-final",
+        "ProtocolType": "HTTP",
+        "CorsConfiguration": {
+          "AllowHeaders": [
+            "Content-Type",
+            "X-Amz-Date",
+            "Authorization",
+            "X-Api-Key",
+            "X-Amz-Security-Token",
+            "X-Amz-User-Agent",
+            "X-Amzn-Trace-Id"
+          ],
+          "AllowMethods": [
+            "OPTIONS",
+            "POST"
+          ],
+          "AllowOrigins": [
+            "*"
+          ]
+        }
       }
     },
     "HttpApiStage": {
@@ -288,13 +307,13 @@
         "TimeoutInMillis": 30000
       }
     },
-    "HttpApiRoutePostApiScrape": {
+    "HttpApiRoutePostScrape": {
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
         "ApiId": {
           "Ref": "HttpApi"
         },
-        "RouteKey": "POST /api/scrape",
+        "RouteKey": "POST /scrape",
         "Target": {
           "Fn::Join": [
             "/",
@@ -316,16 +335,16 @@
         "Ref": "ServerlessDeploymentBucket"
       },
       "Export": {
-        "Name": "sls-instagram-api-dev-ServerlessDeploymentBucketName"
+        "Name": "sls-instagram-api-final-prod-ServerlessDeploymentBucketName"
       }
     },
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersionSGqjnDGZogTwlH8LJ2Kka4T7EAY8xgDphBRwfTuOczg"
+        "Ref": "ApiLambdaVersion1rsMG53bMhDvplkdAbwfJe9e9UL9CDZjb6sirfGXY"
       },
       "Export": {
-        "Name": "sls-instagram-api-dev-ApiLambdaFunctionQualifiedArn"
+        "Name": "sls-instagram-api-final-prod-ApiLambdaFunctionQualifiedArn"
       }
     },
     "HttpApiId": {
@@ -334,7 +353,7 @@
         "Ref": "HttpApi"
       },
       "Export": {
-        "Name": "sls-instagram-api-dev-HttpApiId"
+        "Name": "sls-instagram-api-final-prod-HttpApiId"
       }
     },
     "HttpApiUrl": {
@@ -359,7 +378,7 @@
         ]
       },
       "Export": {
-        "Name": "sls-instagram-api-dev-HttpApiUrl"
+        "Name": "sls-instagram-api-final-prod-HttpApiUrl"
       }
     }
   }
